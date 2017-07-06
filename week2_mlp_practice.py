@@ -47,6 +47,15 @@ def softmax(X):
     return (np.exp(X).T / np.sum(np.exp(X), axis=1, dtype=float)).T
 
 
+def onehot(y):
+    n = len(np.unique(y))
+    m = y.shape[0]
+    b = np.zeros((m, n))
+    for i in xrange(m):
+        b[i, y[i]] = 1
+    return b
+
+
 class MLP:
     def __init__(self, input_size, output_size, hidden_layer_size=[100], batch_size=200, activation="sigmoid",
                  output_layer='softmax', loss='cross_entropy', lr=0.01, reg_lambda=0.0001, momentum=0.9, verbose=10):
@@ -166,7 +175,8 @@ class MLP:
                 # call forward function
                 self.forward(X[batch:batch + self.batch_size])
                 # call backward function
-                self.backward(y[batch:batch + self.batch_size], y)
+                self.backward(X[batch:batch + self.batch_size], y[batch:batch + self.batch_size])
+
             if i % self.verbose == 0:
                 # Compute Loss and Training Accuracy
                 loss = self.compute_loss(X, y)
@@ -186,10 +196,11 @@ class MLP:
         probs = self.forward(X)
 
         # This program uses the cross-entropy method as the loss function.
-        data_loss = np.sum(y * np.log(probs))
-
+        y_mat = onehot(y)
+        # data_loss = np.sum(y_mat * np.log(probs))
+        data_loss = np.sum(y_mat * np.log(probs) + (1 - y_mat) * np.log(1 - probs))
         # Add Normalization
-        data_loss += (1 / 2) * self.reg_lambda * self.weights ** 2
+        data_loss += (1 / 2) * self.reg_lambda * np.sum(self.weights[-1] ** 2, dtype=float)
 
         return 1. / n_samples * data_loss
 
@@ -213,19 +224,22 @@ class MLP:
 
         # update deltas
         for i in xrange(2, len(self.deltas) + 1):
-            self.deltas[-i] = np.dot(np.dot(self.deltas[-i + 1], self.weights[-i + 1].T).T, self.layers[-i])
+            self.deltas[-i] = np.dot(np.dot(self.deltas[-i + 1], self.weights[-i + 1].T).T,
+                                     self.activation_dfunc(self.layers[-i]))
 
         # update weights and bias
-        # output layer
-        self.weights[-1] -= self.lr * (np.dot(self.layers[-2].T, self.deltas[-1]) + self.reg_lambda * self.weights[-1])
-        self.bias[-1] -= self.lr * self.deltas[-1][range(X.shape[0])]
-
         # hidden layer
-        for j in xrange(0, len(self.weights)):
-            self.weights[j] -= self.lr * (np.dot
-                                          (np.dot(self.layers[j + 1], self.deltas[j]),
-                                           self.weights[j].T) + self.reg_lambda * self.weights[j])
-            self.bias[j] -= self.lr * self.deltas[j]
+        for j in xrange(self.n_layers, 0, -1):
+            # self.weights[j] -= self.lr * (np.dot
+            #                               (np.dot(self.layers[j + 1].T, self.deltas[j]),
+            #                                self.weights[j]) + self.reg_lambda * self.weights[j])
+            self.weights[j] -= self.lr * (np.dot(self.layers[j].T, self.deltas[j]) + self.reg_lambda * self.weights[j])
+            self.bias[j] -= self.lr * np.sum(self.deltas[j])
+            # for i in range(len(self.hidden_layer_size), -1, -1):
+            #         d_weight = np.dot(self.layers[i].T, self.deltas[i]) + self.reg_lambda * self.weights[i]
+            #         d_bias = np.sum(self.deltas[i], axis=0)
+            #         self.weights[i] += -1 * self.lr * d_weight
+            #         self.bias[i] += -1. * self.lr * d_bias
 
     def predict(self, X):
         """
@@ -258,11 +272,20 @@ def my_mlp():
     # y_train, y_test = y[:60000], y[60000:]
 
     import sklearn.datasets
+    from sklearn.preprocessing import MinMaxScaler
+
     dataset = sklearn.datasets.load_digits()
     X_train = dataset.data[:1500]
     X_test = dataset.data[1500:]
     y_train = dataset.target[:1500]
     y_test = dataset.target[1500:]
+
+    # data normalization
+    # X_train = (X_train - np.mean(X_train, axis=1, keepdims=True)) / np.std(X_train, axis=1, keepdims=True)
+    # X_test = (X_test - np.mean(X_test, axis=1, keepdims=True)) / np.std(X_test, axis=1, keepdims=True)
+    minmax_scaler = MinMaxScaler(feature_range=(0, 1), copy=True)
+    X_train = minmax_scaler.fit_transform(X_train)
+    X_test = minmax_scaler.fit_transform(X_test)
 
     network = MLP(input_size=64, output_size=10, hidden_layer_size=[128], batch_size=200, activation="sigmoid",
                   output_layer='softmax', loss='cross_entropy', lr=0.1)
