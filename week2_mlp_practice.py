@@ -235,11 +235,6 @@ class MLP:
             #                                self.weights[j]) + self.reg_lambda * self.weights[j])
             self.weights[j] -= self.lr * (np.dot(self.layers[j].T, self.deltas[j]) + self.reg_lambda * self.weights[j])
             self.bias[j] -= self.lr * np.sum(self.deltas[j])
-            # for i in range(len(self.hidden_layer_size), -1, -1):
-            #         d_weight = np.dot(self.layers[i].T, self.deltas[i]) + self.reg_lambda * self.weights[i]
-            #         d_bias = np.sum(self.deltas[i], axis=0)
-            #         self.weights[i] += -1 * self.lr * d_weight
-            #         self.bias[i] += -1. * self.lr * d_bias
 
     def predict(self, X):
         """
