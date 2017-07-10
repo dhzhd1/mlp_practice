@@ -1,2 +1,2 @@
 # mlp_practice
-homework of week2
+BitTiger AI Training Homework
