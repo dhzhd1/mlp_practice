@@ -1,7 +1,7 @@
 name: "R-CNN-Face-Recognize"
 layer {
   name: "data"
-  type: "data"
+  type: "Data"
   top: "data"
   top: "label"
   include{
@@ -12,7 +12,7 @@ layer {
     crop_size: 227
     mean_file: "train.list.mean"
   }
-  input_param {
+  data_param {
     source: "train.list.lmdb"
     batch_size: 64
     backend: LMDB
@@ -20,7 +20,7 @@ layer {
 }
 layer{
   name: "data"
-  type: "data"
+  type: "Data"
   top: "data"
   top: "label"
   include {
@@ -241,7 +241,7 @@ layer {
   bottom: "fc-rcnn"
   top: "prob"
   name: "prob"
-  type: "SOFTMAX"
+  type: "Softmax"
   include {
     phase: TEST
   }
@@ -251,7 +251,7 @@ layer {
   bottom: "label"
   top: "accuracy"
   name: "accuracy"
-  type: ACCURACY
+  type: "Accuracy"
   include {
     phase: TEST
   }
@@ -260,7 +260,7 @@ layer {
   bottom: "fc-rcnn"
   bottom: "label"
   name: "loss"
-  type: SOFTMAX_LOSS
+  type: "SoftmaxWithLoss"
   include {
     phase: TRAIN
   }

@@ -1,14 +1,15 @@
-# Use R-CNN-ilsvrc13
-net: "face_recognize_train.prototxt"
+net: "/home/amax/mlp_practice/face_recognize/face_recognize_train_val.prototxt"
 test_iter: 100
 test_interval: 1000
 base_lr: 0.001
-lr_policy: step
+lr_policy: "step"
 gamma: 0.1
-stepsize: 20000
-display: 1000
+stepsize: 2000
+display: 100
 max_iter: 100000
 momentum: 0.9
 weight_decay: 0.005
-snapshot: 10000
-snapshot_prefix: "face_recognize_DS502_train"
+snapshot: 2000
+snapshot_prefix: "/home/amax/mlp_practice/face_recognize/snapshot/face_recognize_DS502_train"
+type: "Adam"
+solver_mode: GPU
