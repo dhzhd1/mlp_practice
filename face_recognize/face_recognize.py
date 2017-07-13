@@ -37,7 +37,7 @@ def extract_lfw(data_file_path):
 
 
 def create_image_list():
-    base_dir = "/home/john/DS502/homework/week2/mlp_practice/face_recognize/lfw/"
+    base_dir = "/home/amax/mlp_practice/face_recognize/lfw/"
     file_list = []
     name_list = dict()
     name_id = 0
@@ -86,8 +86,8 @@ def split_data(data_list):
 
 
 def create_image_lmdb_mean(file_name):
-    ROOT_FOLDER = "/home/john/DS502/homework/week2/mlp_practice/face_recognize/"
-    CAFFE_CMD_PATH = "/home/john/DS502/caffe/build/tools/"
+    ROOT_FOLDER = "/home/amax/mlp_practice/face_recognize/"
+    CAFFE_CMD_PATH = "/home/amax/caffe/build/tools/"
     CMD_CONV_IMG = "convert_imageset.bin"
     CMD_COMP_MEAN = "compute_image_mean.bin"
     conv_cmd_array = [os.path.join(CAFFE_CMD_PATH, CMD_CONV_IMG),
